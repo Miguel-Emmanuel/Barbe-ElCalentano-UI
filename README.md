@@ -16,3 +16,4 @@ API esperada: `http://localhost:4000` (`NEXT_PUBLIC_API_URL`)
 - Tipografía display: Pacifico (estilo script del logo)
 - UI: DM Sans
 - Moneda MXN · pago en local
+# Barbe-ElCalentano-UI
