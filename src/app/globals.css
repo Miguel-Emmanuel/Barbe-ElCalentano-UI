@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #1a0f0c;
+  --gold: #c9a227;
+  --bone: #f7f0e6;
+  --brick: #b33b2e;
+  --mortar: #c4a484;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--bone);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+.page-with-mobile-nav {
+  padding-bottom: calc(4.75rem + var(--safe-b));
+}
+
+@media (min-width: 1024px) {
+  .page-with-mobile-nav {
+    padding-bottom: 0;
+  }
+}
+
+/* Real brick photo — scroll on mobile, fixed on desktop */
+.bg-brick-wall,
+.bg-brick-wall-soft {
+  background-attachment: scroll;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 1024px) {
+  .bg-brick-wall,
+  .bg-brick-wall-soft {
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full rounded-xl border border-brick/40 bg-ink/70 px-4 py-3.5 text-base text-bone outline-none transition placeholder:text-bone/40 focus:border-gold focus:ring-1 focus:ring-gold/40;
+    font-size: 16px; /* prevents iOS zoom on focus */
+    min-height: 48px;
+  }
+
+  .btn-gold {
+    @apply inline-flex min-h-12 items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-semibold text-ink transition active:scale-[0.98] hover:bg-gold-soft disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex min-h-12 items-center justify-center rounded-full border border-bone/25 px-5 py-3 text-sm text-bone/85 transition active:scale-[0.98] hover:border-gold/50 hover:text-gold;
+  }
+
+  .panel {
+    @apply rounded-2xl border border-brick/35 bg-ink/85 shadow-panel backdrop-blur-md;
+  }
+
+  .tap-target {
+    @apply min-h-12 min-w-12;
+  }
+
+  .mobile-bottom-nav {
+    @apply fixed inset-x-0 bottom-0 z-50 border-t border-brick/40 bg-ink/95 backdrop-blur-lg lg:hidden;
+    padding-bottom: var(--safe-b);
+  }
+
+  .chip-scroll {
+    @apply flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none];
+  }
+
+  .chip-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .safe-px {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .safe-pt {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gold-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(201, 162, 39, 0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.55s ease-out both;
+}
+
+.animate-gold-pulse {
+  animation: gold-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-gold-pulse {
+    animation: none;
+  }
+}
