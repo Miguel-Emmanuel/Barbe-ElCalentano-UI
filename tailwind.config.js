@@ -4,34 +4,42 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        ink: "#1a0f0c",
-        charcoal: "#2a1612",
+        ink: "#14110F",
+        charcoal: "#241C18",
+        /* Acento fino (terracota del ladrillo). Los botones usan hueso, no este tono. */
         gold: {
-          DEFAULT: "#C9A227",
-          soft: "#E0C56A",
-          deep: "#8A7015",
+          DEFAULT: "#C45C4A",
+          soft: "#E4B2A4",
+          deep: "#8E3A30",
         },
-        bone: "#F7F0E6",
+        bone: "#F4EFE8",
         brick: {
-          DEFAULT: "#B33B2E",
-          soft: "#D25542",
-          deep: "#7A241C",
-          mortar: "#C4A484",
+          DEFAULT: "#C45C4A",
+          soft: "#A33B32",
+          deep: "#6E2A24",
+          mortar: "#C4B09A",
         },
-        brickSoft: "#D25542",
+        brickSoft: "#A33B32",
       },
       fontFamily: {
         display: ["var(--font-display)", "cursive"],
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        sans: [
+          "Segoe UI",
+          "system-ui",
+          "-apple-system",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif",
+        ],
       },
       backgroundImage: {
         "brick-wall":
-          "linear-gradient(160deg, rgba(26,15,12,.70), rgba(26,15,12,.52)), url('/textures/brick-wall.png')",
+          "linear-gradient(160deg, rgba(20,17,15,.72), rgba(20,17,15,.55)), url('/textures/brick-wall.png')",
         "brick-wall-soft":
-          "linear-gradient(180deg, rgba(26,15,12,.48), rgba(26,15,12,.75)), url('/textures/brick-wall.png')",
+          "linear-gradient(180deg, rgba(20,17,15,.50), rgba(20,17,15,.78)), url('/textures/brick-wall.png')",
       },
       boxShadow: {
-        panel: "0 18px 50px rgba(26, 15, 12, 0.45)",
+        panel: "0 18px 50px rgba(20, 17, 15, 0.45)",
       },
     },
   },

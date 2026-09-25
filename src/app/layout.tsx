@@ -1,13 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { DM_Sans } from "next/font/google";
 import "./globals.css";
-
-const sans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  weight: ["400", "500", "700"],
-});
 
 /** Brand script: Cream Cake (Ef Studio) — use for “Calentano / EL CALENTANO”. */
 const creamCake = localFont({
@@ -46,15 +39,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#1a0f0c",
+  themeColor: "#14110F",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es-MX">
-      <body className={`${sans.variable} ${creamCake.variable} font-sans antialiased`}>
-        {children}
-      </body>
+      <body className={`${creamCake.variable} font-sans antialiased`}>{children}</body>
     </html>
   );
 }

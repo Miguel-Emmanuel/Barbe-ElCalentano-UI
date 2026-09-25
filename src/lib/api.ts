@@ -1,6 +1,16 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const TOKEN_KEY = "el_calentano_staff_token";
 
+export type StaffUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  isSuperAdmin: boolean;
+  barberId: string | null;
+  barberName: string | null;
+};
+
 export type Service = {
   id: string;
   code: string;
@@ -47,10 +57,96 @@ export type AppointmentRow = {
   priceCents: number;
   quantity: number;
   notes?: string | null;
+  source?: "BOOKED" | "WALK_IN";
   client: { name: string; phone: string };
   barber: { name: string; nickname: string | null };
-  service: { name: string };
+  service: { name: string; durationMin?: number };
   payment: { status: string; tipCents: number } | null;
+  commission?: {
+    barberEarnCents: number;
+    shopEarnCents: number;
+    tipCents: number;
+    commissionPercent: number;
+  } | null;
+};
+
+export type AppointmentSearchParams = {
+  date?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  q?: string;
+  serviceId?: string;
+  barberId?: string;
+  status?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  hasCommission?: "yes" | "no" | "";
+};
+
+export type CommissionRow = {
+  id: string;
+  barberId: string;
+  serviceCents: number;
+  barberEarnCents: number;
+  shopEarnCents: number;
+  tipCents: number;
+  commissionPercent: number;
+  createdAt?: string;
+  appointment: {
+    id?: string;
+    startAt?: string;
+    endAt?: string;
+    priceCents?: number;
+    notes?: string | null;
+    status?: string;
+    barber: { name: string; nickname?: string | null };
+    service: { name: string; durationMin?: number };
+    client: { name: string; phone?: string };
+    payment?: { tipCents: number; amountCents?: number; method?: string } | null;
+  };
+};
+
+export type CommissionDayBarber = {
+  barberId: string;
+  barberName: string;
+  count: number;
+  serviceCents: number;
+  commissionCents: number;
+  tipCents: number;
+  payCents: number;
+  shopCents: number;
+  percents: number[];
+};
+
+export type CommissionTotals = {
+  count: number;
+  serviceCents?: number;
+  commissionCents?: number;
+  barberEarnCents: number;
+  shopEarnCents: number;
+  tipCents: number;
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  byBarber: Array<{
+    barberId: string;
+    barberName: string;
+    count: number;
+    serviceCents?: number;
+    commissionCents?: number;
+    barberEarnCents: number;
+    shopEarnCents: number;
+    tipCents: number;
+  }>;
+  byDay?: Array<{
+    date: string;
+    count: number;
+    serviceCents: number;
+    commissionCents: number;
+    tipCents: number;
+    payCents: number;
+    shopCents: number;
+    barbers: CommissionDayBarber[];
+  }>;
 };
 
 export type WaitlistRow = {
@@ -134,6 +230,19 @@ export const api = {
       };
     }>(`/api/availability?${params.toString()}`);
   },
+  createWalkIn: (body: {
+    serviceId: string;
+    barberId?: string;
+    clientName: string;
+    clientPhone?: string;
+    quantity?: number;
+    notes?: string;
+  }) =>
+    request<{ ok: true; message?: string; data: AppointmentRow }>(`/api/appointments/walk-in`, {
+      method: "POST",
+      body: JSON.stringify(body),
+      auth: true,
+    }),
   createAppointment: (body: {
     serviceId: string;
     barberId: string;
@@ -162,21 +271,22 @@ export const api = {
       body: JSON.stringify(body),
     }),
   login: (email: string, password: string) =>
-    request<{
-      ok: true;
-      data: { token: string; user: { id: string; name: string; email: string; role: string } };
-    }>("/api/auth/login", {
+    request<{ ok: true; data: { token: string; user: StaffUser } }>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
   logout: () => request<{ ok: true }>("/api/auth/logout", { method: "POST", auth: true }),
-  me: () =>
-    request<{ ok: true; data: { id: string; name: string; email: string; role: string } }>(
-      "/api/auth/me",
-      { auth: true },
-    ),
+  me: () => request<{ ok: true; data: StaffUser }>("/api/auth/me", { auth: true }),
   getAppointments: (date?: string) => {
     const q = date ? `?date=${date}` : "";
+    return request<{ ok: true; data: AppointmentRow[] }>(`/api/appointments${q}`, { auth: true });
+  },
+  searchAppointments: (params: AppointmentSearchParams) => {
+    const sp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v != null && v !== "") sp.set(k, String(v));
+    });
+    const q = sp.toString() ? `?${sp.toString()}` : "";
     return request<{ ok: true; data: AppointmentRow[] }>(`/api/appointments${q}`, { auth: true });
   },
   updateStatus: (id: string, status: string) =>
@@ -267,36 +377,16 @@ export const api = {
       body: JSON.stringify({ items, clientPhone, method: "CASH" }),
       auth: true,
     }),
-  getCommissions: (date?: string) => {
-    const q = date ? `?date=${date}` : "";
+  getCommissions: (params?: { date?: string; dateFrom?: string; dateTo?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.date) sp.set("date", params.date);
+    if (params?.dateFrom) sp.set("dateFrom", params.dateFrom);
+    if (params?.dateTo) sp.set("dateTo", params.dateTo);
+    const q = sp.toString() ? `?${sp.toString()}` : "";
     return request<{
       ok: true;
-      data: Array<{
-        id: string;
-        barberEarnCents: number;
-        shopEarnCents: number;
-        tipCents: number;
-        commissionPercent: number;
-        appointment: {
-          barber: { name: string };
-          service: { name: string };
-          client: { name: string };
-        };
-      }>;
-      totals: {
-        count: number;
-        barberEarnCents: number;
-        shopEarnCents: number;
-        tipCents: number;
-        byBarber: Array<{
-          barberId: string;
-          barberName: string;
-          count: number;
-          barberEarnCents: number;
-          shopEarnCents: number;
-          tipCents: number;
-        }>;
-      };
+      data: CommissionRow[];
+      totals: CommissionTotals;
     }>(`/api/admin/commissions${q}`, { auth: true });
   },
   getAdminBarbers: () =>
@@ -305,6 +395,7 @@ export const api = {
       data: Array<{
         id: string;
         name: string;
+        slug: string;
         nickname: string | null;
         commissionPercent: number;
         active: boolean;

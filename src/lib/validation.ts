@@ -8,9 +8,12 @@ export function normalizeMxPhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
   if (digits.length === 12 && digits.startsWith("52")) return digits.slice(2);
   if (digits.length === 13 && digits.startsWith("521")) return digits.slice(3);
+  // Si pegan más de 10 sin prefijo, nos quedamos con los últimos 10
+  if (digits.length > 10) return digits.slice(-10);
   return digits;
 }
 
+/** WhatsApp MX: exactamente 10 dígitos (ej. 7226935654). */
 export function isValidMxPhone(raw: string): boolean {
   return /^\d{10}$/.test(normalizeMxPhone(raw));
 }

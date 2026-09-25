@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" role="img" aria-label="Zaira">
+  <defs>
+    <linearGradient id="bgZaira" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a2a32"/>
+      <stop offset="1" stop-color="#14110f"/>
+    </linearGradient>
+    <radialGradient id="spotZaira" cx="50%" cy="28%" r="55%">
+      <stop offset="0" stop-color="#e4b2a4" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#c45c4a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="360" height="480" fill="url(#bgZaira)"/>
+  <rect width="360" height="480" fill="url(#spotZaira)"/>
+  <path d="M28 480V340c24-62 70-100 152-100s128 38 152 100V480Z" fill="#f4efe8"/>
+  <path d="M150 300c12 18 20 36 20 70h20c0-34 8-52 20-70-10 8-20 12-30 12s-20-4-30-12Z" fill="#e8c4a2"/>
+  <path d="M78 210c8 70 18 150 28 210h36c-6-70-16-140-22-190-16 4-30-4-42-20Z" fill="#1c1512"/>
+  <path d="M282 210c-8 70-18 150-28 210h-36c6-70 16-140 22-190 16 4 30-4 42-20Z" fill="#1c1512"/>
+  <ellipse cx="180" cy="188" rx="70" ry="82" fill="#f0c8aa"/>
+  <ellipse cx="180" cy="204" rx="54" ry="50" fill="#f6d6bc" opacity="0.45"/>
+  <path d="M104 176c0-86 32-122 76-122s76 36 76 122c-10-28-36-46-76-46s-66 18-76 46Z" fill="#1c1512"/>
+  <path d="M108 168c18 36 28 28 36 8-20 8-32 4-36-8Z" fill="#1c1512"/>
+  <path d="M252 168c-18 36-28 28-36 8 20 8 32 4 36-8Z" fill="#1c1512"/>
+  <path d="M124 156c18-10 34-8 46 4" fill="none" stroke="#1c1512" stroke-width="6" stroke-linecap="round"/>
+  <path d="M190 154c14-10 32-8 46 6" fill="none" stroke="#1c1512" stroke-width="6" stroke-linecap="round"/>
+  <ellipse cx="152" cy="196" rx="11" ry="8" fill="#fbf6f0"/>
+  <ellipse cx="208" cy="196" rx="11" ry="8" fill="#fbf6f0"/>
+  <circle cx="154" cy="197" r="4.2" fill="#241c18"/>
+  <circle cx="210" cy="197" r="4.2" fill="#241c18"/>
+  <path d="M174 218c3 8 9 8 12 0" fill="none" stroke="#c48b6a" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M162 262c6 8 12 12 18 12s12-4 18-12" fill="none" stroke="#c45c4a" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="108" cy="214" r="5" fill="#c45c4a"/>
+  <circle cx="252" cy="214" r="5" fill="#c45c4a"/>
+  <ellipse cx="116" cy="202" rx="8" ry="12" fill="#e8c0a0"/>
+  <ellipse cx="244" cy="202" rx="8" ry="12" fill="#e8c0a0"/>
+</svg>
