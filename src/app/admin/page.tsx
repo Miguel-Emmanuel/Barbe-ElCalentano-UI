@@ -148,6 +148,7 @@ export default function AdminPage() {
     maxPrice: "",
     hasCommission: "" as "" | "yes" | "no",
   });
+  const [moreFilters, setMoreFilters] = useState(false);
   const [histBarbers, setHistBarbers] = useState<
     Array<{ id: string; name: string; slug: string; nickname: string | null }>
   >([]);

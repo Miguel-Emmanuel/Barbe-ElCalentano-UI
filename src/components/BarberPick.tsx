@@ -1,5 +1,5 @@
 export function barberPortrait(slug: string) {
-  return `/brand/barbers/${slug}.svg`;
+  return `/brand/barbers/${slug}.jpeg`;
 }
 
 export type BarberCard = {
@@ -48,7 +48,7 @@ export function BarberPick({
                 <img
                   src={barberPortrait(barber.slug)}
                   alt=""
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover object-top"
                 />
                 {selected ? (
                   <span className="absolute right-1.5 top-1.5 rounded-full bg-bone px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">

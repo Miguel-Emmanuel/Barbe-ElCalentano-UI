@@ -480,7 +480,7 @@ export function BookingWizard() {
                 <img
                   src={barberPortrait(selectedBarber.slug)}
                   alt=""
-                  className="h-7 w-7 rounded-full object-cover"
+                  className="h-7 w-7 rounded-full object-cover object-top"
                 />
                 <span>
                   {selectedBarber.name}
