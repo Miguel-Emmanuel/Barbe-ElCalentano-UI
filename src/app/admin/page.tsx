@@ -89,8 +89,8 @@ export default function AdminPage() {
   const [userName, setUserName] = useState("");
   const [staff, setStaff] = useState<StaffUser | null>(null);
   const isSuperAdmin = staff?.isSuperAdmin ?? false;
-  const [email, setEmail] = useState("admin@elcalentano.mx");
-  const [password, setPassword] = useState("calentano123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [tab, setTab] = useState<Tab>("agenda");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [rows, setRows] = useState<AppointmentRow[]>([]);
@@ -291,7 +291,7 @@ export default function AdminPage() {
   if (!authed) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-brick-wall bg-cover bg-center px-4 text-bone">
-        <form onSubmit={onLogin} className="panel w-full max-w-md p-6">
+        <form onSubmit={onLogin} autoComplete="off" className="panel w-full max-w-md p-6">
           <p className="text-xs tracking-[0.25em] text-gold">STAFF</p>
           <BrandTitle as="h1" className="mt-2 text-3xl text-bone">
             El Calentano
