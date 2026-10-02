@@ -11,6 +11,7 @@ import {
   type Barber,
   type Service,
 } from "@/lib/api";
+import { ARRIVAL_GRACE_MIN, PAYMENT_NOTE } from "@/lib/shopInfo";
 import {
   WEEKDAYS_ES,
   isValidMxPhone,
@@ -32,7 +33,7 @@ type Step = 1 | 2 | 3 | 4 | 5;
 
 const STEP_LABELS = ["Servicio", "Barbero", "Fecha", "Datos"] as const;
 
-function DateCalendar({
+export function DateCalendar({
   value,
   minDate,
   onChange,
@@ -163,7 +164,9 @@ export function BookingWizard() {
   const [bootError, setBootError] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [receipt, setReceipt] = useState<{ publicToken: string; publicCode: string } | null>(null);
   const [waitlistMode, setWaitlistMode] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
   const mobile = useIsMobile();
   const stepMotion = mobile ? mobileTransition : { duration: 0.28, ease: easeOut };
   const successRef = useRef(false);
@@ -171,6 +174,7 @@ export function BookingWizard() {
 
   function resetBooking() {
     setSuccess(false);
+    setReceipt(null);
     setStep(1);
     setServiceId("");
     setBarberId("");
@@ -188,6 +192,7 @@ export function BookingWizard() {
     setError("");
     setWaitlistMode(false);
     setLoading(false);
+    setSummaryOpen(false);
   }
 
   useEffect(() => {
@@ -350,6 +355,7 @@ export function BookingWizard() {
           clientPhone: phone,
           notes: trimmedNotes,
         });
+        setReceipt(null);
         setSuccess(true);
         setStep(5);
         return;
@@ -359,7 +365,7 @@ export function BookingWizard() {
         setStep(3);
         return;
       }
-      await api.createAppointment({
+      const booked = await api.createAppointment({
         serviceId,
         barberId,
         startAt,
@@ -369,6 +375,10 @@ export function BookingWizard() {
         quantity: selectedService?.allowsQuantity ? quantity : 1,
         notes: trimmedNotes,
       });
+      const pass = booked.data as { publicToken?: string; publicCode?: string };
+      if (pass.publicToken && pass.publicCode) {
+        setReceipt({ publicToken: pass.publicToken, publicCode: pass.publicCode });
+      }
       setSuccess(true);
       setStep(5);
     } catch (e) {
@@ -427,17 +437,41 @@ export function BookingWizard() {
             : date}
         </p>
         {selectedService ? (
-          <p className="mt-2 text-sm text-gold">
+          <p className="mt-2 text-sm text-dorado">
             {formatMxn(
               selectedService.priceCents *
                 (selectedService.allowsQuantity ? quantity : 1),
             )}{" "}
             · {selectedService.durationMin * (selectedService.allowsQuantity ? quantity : 1)} min
-            · tolerancia 5 min
+            · tolerancia {ARRIVAL_GRACE_MIN} min
           </p>
         ) : null}
         {notes.trim() ? (
           <p className="mt-2 text-xs text-bone/55">Nota: {notes.trim()}</p>
+        ) : null}
+        {receipt ? (
+          <div className="mt-5 rounded-xl border border-brick/40 bg-ink/50 p-4 text-left">
+            <p className="text-xs uppercase tracking-[0.16em] text-gold">Tu cita</p>
+            <p className="mt-2 font-display text-3xl tracking-[0.2em] text-bone">{receipt.publicCode}</p>
+            <p className="mt-2 text-sm text-bone/75">
+              Guárdalo. Con eso ves, cambias o cancelas tu cita.
+            </p>
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <a href={`/cita/${receipt.publicToken}`} className="btn-gold !min-h-11 !rounded-xl text-center">
+                Ver mi cita
+              </a>
+              <button
+                type="button"
+                className="btn-ghost !min-h-11 !rounded-xl border-gold/40"
+                onClick={() => {
+                  const link = `${window.location.origin}/cita/${receipt.publicToken}`;
+                  void navigator.clipboard?.writeText(`${link}\nCódigo: ${receipt.publicCode}`);
+                }}
+              >
+                Copiar enlace
+              </button>
+            </div>
+          </div>
         ) : null}
         <button
           type="button"
@@ -462,9 +496,25 @@ export function BookingWizard() {
 
   return (
     <div className="panel animate-fade-up p-3 sm:p-8">
-      <div className="mb-3 rounded-xl border border-gold/30 bg-ink/55 p-3 sm:mb-4 sm:p-3.5">
-        <p className="text-[11px] uppercase tracking-[0.16em] text-gold">Tu reserva</p>
-        <ul className="mt-2 space-y-1 text-sm text-bone/80">
+      <div className="mb-3 rounded-xl border border-gold/30 bg-ink/55 sm:mb-4">
+        <button
+          type="button"
+          className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left sm:px-3.5"
+          aria-expanded={summaryOpen}
+          onClick={() => setSummaryOpen((open) => !open)}
+        >
+          <span className="text-[11px] uppercase tracking-[0.16em] text-gold">
+            {summaryOpen ? "Ocultar detalles" : "Ver detalles de la reserva"}
+          </span>
+          <span
+            className={`text-sm text-gold transition-transform ${summaryOpen ? "rotate-180" : ""}`}
+            aria-hidden
+          >
+            ▾
+          </span>
+        </button>
+        {summaryOpen ? (
+        <ul className="space-y-1 border-t border-gold/20 px-3 pb-3 pt-2 text-sm text-bone/80 sm:px-3.5 sm:pb-3.5">
           <li>
             <span className="text-bone/45">Servicio: </span>
             {selectedService
@@ -507,14 +557,15 @@ export function BookingWizard() {
             <>
               <li>
                 <span className="text-bone/45">Duración: </span>
-                {durationMin} min · tolerancia de llegada 5 min
+                {durationMin} min · tolerancia de llegada {ARRIVAL_GRACE_MIN} min
               </li>
-              <li className="pt-1 font-medium text-gold">
-                Total estimado: {formatMxn(priceCents)} · pago en el local
+              <li className="pt-1 font-medium text-dorado">
+                Total estimado: {formatMxn(priceCents)} · {PAYMENT_NOTE}
               </li>
             </>
           ) : null}
         </ul>
+        ) : null}
       </div>
 
       <div className="mb-3 sm:mb-5">
@@ -615,7 +666,7 @@ export function BookingWizard() {
                       {s.allowsQuantity ? " · por ceja" : ""}
                     </span>
                   </span>
-                  <span className="shrink-0 text-sm font-semibold text-gold sm:text-base">
+                  <span className="shrink-0 text-sm font-semibold text-dorado sm:text-base">
                     {formatMxn(s.priceCents)}
                   </span>
                 </motion.button>
@@ -855,15 +906,15 @@ export function BrandMark({
 }) {
   return (
     <div
-      className={`mx-auto inline-flex overflow-hidden rounded-2xl border border-gold/30 bg-ink shadow-panel ${className}`}
-      style={{ width: size, height: size }}
+      className={`mx-auto inline-flex ${className}`}
+      style={{ width: size, height: Math.round(size * 0.62) }}
     >
       <Image
-        src="/brand/logo-black.jpg"
+        src="/brand/logo-new.png"
         alt="Barber Shop El Calentano"
         width={size}
         height={size}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain"
         priority
         sizes="(max-width: 640px) 200px, 280px"
       />

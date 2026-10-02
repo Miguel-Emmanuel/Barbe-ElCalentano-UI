@@ -1,5 +1,26 @@
+import { useState } from "react";
+
 export function barberPortrait(slug: string) {
   return `/brand/barbers/${slug}.jpeg`;
+}
+
+function BarberFace({ slug, name }: { slug: string; name: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <span className="flex h-full w-full items-center justify-center bg-charcoal font-display text-3xl text-dorado">
+        {name.slice(0, 1).toUpperCase()}
+      </span>
+    );
+  }
+  return (
+    <img
+      src={barberPortrait(slug)}
+      alt=""
+      className="h-full w-full object-cover object-top"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 export type BarberCard = {
@@ -45,11 +66,7 @@ export function BarberPick({
               }`}
             >
               <span className="relative block aspect-[3/4] overflow-hidden bg-charcoal">
-                <img
-                  src={barberPortrait(barber.slug)}
-                  alt=""
-                  className="h-full w-full object-cover object-top"
-                />
+                <BarberFace slug={barber.slug} name={barber.name} />
                 {selected ? (
                   <span className="absolute right-1.5 top-1.5 rounded-full bg-bone px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">
                     Elegido

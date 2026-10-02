@@ -1,10 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { BrandTitle } from "@/components/BrandTitle";
 import { useConfirmDialog } from "@/components/ConfirmModal";
 import { DetailModal } from "@/components/DetailModal";
+import { AdminDeadHours } from "@/components/admin/AdminDeadHours";
+import { AdminTeam } from "@/components/admin/AdminTeam";
 import { BarberPick } from "@/components/BarberPick";
 import {
   api,
@@ -30,7 +32,16 @@ const STATUS_LABEL: Record<string, string> = {
   NO_SHOW: "No llegó",
 };
 
-type Tab = "agenda" | "catalogo" | "espera" | "stats" | "tienda" | "comisiones" | "historial";
+type Tab =
+  | "agenda"
+  | "catalogo"
+  | "espera"
+  | "stats"
+  | "tienda"
+  | "comisiones"
+  | "historial"
+  | "equipo"
+  | "horarios";
 
 function tipCentsFromInput(raw: string | undefined) {
   const tipMxn = Number(raw ?? "0");
@@ -109,10 +120,12 @@ export default function AdminPage() {
       name: string;
       nickname: string | null;
       commissionPercent: number;
+      phone: string | null;
       active: boolean;
     }>
   >([]);
   const [barberPctDraft, setBarberPctDraft] = useState<Record<string, string>>({});
+  const [barberPhoneDraft, setBarberPhoneDraft] = useState<Record<string, string>>({});
   const [stats, setStats] = useState<{
     appointments: number;
     completed: number;
@@ -201,6 +214,7 @@ export default function AdminPage() {
   }
 
   async function refresh() {
+    if (tab === "equipo" || tab === "horarios") return;
     setLoading(true);
     setError("");
     setInfo("");
@@ -233,6 +247,9 @@ export default function AdminPage() {
             barberRes.data.map((b) => [b.id, String(b.commissionPercent)]),
           ),
         );
+        setBarberPhoneDraft(
+          Object.fromEntries(barberRes.data.map((b) => [b.id, b.phone ?? ""])),
+        );
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar");
@@ -259,13 +276,17 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!staff || staff.isSuperAdmin) return;
-    if (tab === "espera" || tab === "tienda" || tab === "stats") setTab("agenda");
+    if (tab === "espera" || tab === "tienda" || tab === "stats" || tab === "equipo" || tab === "horarios") {
+      setTab("agenda");
+    }
   }, [staff, tab]);
 
   const allTabs: Array<[Tab, string]> = [
     ["agenda", "Agenda"],
     ["historial", "Historial"],
     ["catalogo", "Servicios"],
+    ["equipo", "Equipo"],
+    ["horarios", "Horarios"],
     ["espera", "Espera"],
     ["tienda", "Tienda"],
     ["comisiones", "Comisiones"],
@@ -293,9 +314,13 @@ export default function AdminPage() {
       <main className="flex min-h-screen items-center justify-center bg-brick-wall bg-cover bg-center px-4 text-bone">
         <form onSubmit={onLogin} autoComplete="off" className="panel w-full max-w-md p-6">
           <p className="text-xs tracking-[0.25em] text-gold">STAFF</p>
-          <BrandTitle as="h1" className="mt-2 text-3xl text-bone">
-            El Calentano
-          </BrandTitle>
+          <Image
+            src="/brand/logo-new.png"
+            alt="Barber Shop El Calentano"
+            width={180}
+            height={72}
+            className="mt-2 h-14 w-auto object-contain"
+          />
           <p className="mt-1 text-sm text-bone/60">Panel de operaciones</p>
           {error && (
             <p
@@ -406,7 +431,7 @@ export default function AdminPage() {
         </div>
 
         <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:flex-wrap sm:items-end sm:gap-4">
-          {tab !== "historial" && tab !== "catalogo" && tab !== "tienda" && tab !== "comisiones" ? (
+          {tab !== "historial" && tab !== "catalogo" && tab !== "tienda" && tab !== "comisiones" && tab !== "equipo" ? (
             <label className="w-full text-sm sm:w-auto">
               Fecha
               <input
@@ -437,6 +462,9 @@ export default function AdminPage() {
           </p>
         )}
         {loading && <p className="mt-4 text-sm text-bone/60">Cargando…</p>}
+
+        {tab === "equipo" && <AdminTeam />}
+        {tab === "horarios" && <AdminDeadHours date={date} />}
 
         {tab === "agenda" && (
           <div className="mt-5 space-y-4">
@@ -591,6 +619,11 @@ export default function AdminPage() {
                       {row.barber.nickname ? ` (${row.barber.nickname})` : ""} ·{" "}
                       {formatMxn(row.priceCents)} · {STATUS_LABEL[row.status] ?? row.status}
                     </p>
+                    {row.status === "CANCELLED" && (row.cancellationFeeCents ?? 0) > 0 ? (
+                      <p className="mt-1 text-sm text-brick-soft">
+                        Cargo en el local: {formatMxn(row.cancellationFeeCents ?? 0)}
+                      </p>
+                    ) : null}
                     {staffActionsFor(row.status).canCharge && (
                       <div className="mt-3 space-y-2 rounded-xl border border-gold/25 bg-ink/40 p-3">
                         <label className="flex items-center gap-2 text-xs text-bone/60">
@@ -1001,6 +1034,11 @@ export default function AdminPage() {
                     {row.barber.nickname ? ` (${row.barber.nickname})` : ""} ·{" "}
                     {formatMxn(row.priceCents)} · {STATUS_LABEL[row.status] ?? row.status}
                   </p>
+                  {row.status === "CANCELLED" && (row.cancellationFeeCents ?? 0) > 0 ? (
+                    <p className="mt-1 text-sm text-brick-soft">
+                      Cargo en el local: {formatMxn(row.cancellationFeeCents ?? 0)}
+                    </p>
+                  ) : null}
                   {row.commission ? (
                     <p className="mt-1 text-xs text-gold-soft">
                       Comisión {row.commission.commissionPercent}% · Barbero{" "}
@@ -1504,6 +1542,57 @@ export default function AdminPage() {
                     ) : (
                       <p className="mt-2 text-xs text-brick-soft">Escribe un % entre 0 y 100.</p>
                     )}
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <label className="text-xs text-bone/60" htmlFor={`wa-${b.id}`}>
+                        WhatsApp
+                      </label>
+                      <input
+                        id={`wa-${b.id}`}
+                        inputMode="numeric"
+                        placeholder="10 dígitos"
+                        className="w-36 rounded border border-white/20 bg-ink px-2 py-1 text-sm"
+                        value={barberPhoneDraft[b.id] ?? ""}
+                        onChange={(e) =>
+                          setBarberPhoneDraft((prev) => ({
+                            ...prev,
+                            [b.id]: e.target.value.replace(/\D/g, "").slice(0, 10),
+                          }))
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="rounded-md bg-bone px-3 py-1.5 text-xs font-semibold text-ink"
+                        onClick={async () => {
+                          const phone = barberPhoneDraft[b.id] ?? "";
+                          if (phone && phone.length !== 10) {
+                            await showAlert({
+                              title: "WhatsApp inválido",
+                              message: "Escribe los 10 dígitos del celular, o déjalo vacío para no avisarle.",
+                              tone: "danger",
+                            });
+                            return;
+                          }
+                          try {
+                            await api.updateBarberPhone(b.id, phone);
+                            await refresh();
+                            await showAlert({
+                              title: "WhatsApp guardado",
+                              message: phone
+                                ? `${b.name} recibirá avisos de sus citas en ese número.`
+                                : `${b.name} ya no recibe avisos por WhatsApp.`,
+                            });
+                          } catch (e) {
+                            await showAlert({
+                              title: "Error",
+                              message: e instanceof Error ? e.message : "No se pudo guardar",
+                              tone: "danger",
+                            });
+                          }
+                        }}
+                      >
+                        Guardar WhatsApp
+                      </button>
+                    </div>
                   </li>
                   );
                 })}

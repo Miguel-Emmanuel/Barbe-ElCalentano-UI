@@ -49,6 +49,46 @@ export type Branch = {
   }>;
 };
 
+export type PublicVisitCard = {
+  token: string;
+  startAt: string;
+  endAt: string;
+  status: string;
+  statusLabel: string;
+  serviceName: string;
+  barberName: string;
+  barberSlug: string;
+};
+
+export type PublicAppointment = {
+  token: string;
+  code: string;
+  status: string;
+  statusLabel: string;
+  canManage: boolean;
+  lockMessage: string | null;
+  clientName: string;
+  startAt: string;
+  endAt: string;
+  priceCents: number;
+  priceMxn: number;
+  quantity: number;
+  notes: string | null;
+  cancellationFeeCents: number;
+  service: { name: string; durationMin: number };
+  barber: { id: string; name: string; nickname: string | null; slug: string };
+  branch: { name: string; address: string; city: string };
+  cancellationPreview: {
+    late: boolean;
+    feeCents: number;
+    feeMxn: number;
+    noticeHours: number;
+    lateFeePercent: number;
+    message: string;
+  } | null;
+  others: PublicVisitCard[];
+};
+
 export type AppointmentRow = {
   id: string;
   startAt: string;
@@ -57,6 +97,7 @@ export type AppointmentRow = {
   priceCents: number;
   quantity: number;
   notes?: string | null;
+  cancellationFeeCents?: number;
   source?: "BOOKED" | "WALK_IN";
   client: { name: string; phone: string };
   barber: { name: string; nickname: string | null };
@@ -205,6 +246,33 @@ export const api = {
   getServices: () =>
     request<{ ok: true; currency: string; data: Service[] }>("/api/services"),
   getBarbers: () => request<{ ok: true; data: Barber[] }>("/api/barbers"),
+  getPublicAppointment: (token: string) =>
+    request<{ ok: true; data: PublicAppointment }>(
+      `/api/public/appointments/${encodeURIComponent(token)}`,
+    ),
+  lookupPublicAppointment: (phone: string, code: string) =>
+    request<{ ok: true; data: PublicAppointment }>("/api/public/appointments/lookup", {
+      method: "POST",
+      body: JSON.stringify({ phone, code }),
+    }),
+  getPublicSlots: (token: string, date: string, barberId: string) =>
+    request<{
+      ok: true;
+      data: { slots: string[]; durationMin?: number; note?: string };
+    }>(
+      `/api/public/appointments/${encodeURIComponent(token)}/slots?date=${date}&barberId=${encodeURIComponent(barberId)}`,
+    ),
+  cancelPublicAppointment: (token: string) =>
+    request<{
+      ok: true;
+      message: string;
+      data: { view: PublicAppointment; cancellation: { feeCents: number; message: string; late: boolean } };
+    }>(`/api/public/appointments/${encodeURIComponent(token)}/cancel`, { method: "POST" }),
+  reschedulePublicAppointment: (token: string, startAt: string, barberId: string) =>
+    request<{ ok: true; message?: string; data: PublicAppointment }>(
+      `/api/public/appointments/${encodeURIComponent(token)}/reschedule`,
+      { method: "POST", body: JSON.stringify({ startAt, barberId }) },
+    ),
   getBranch: () => request<{ ok: true; data: Branch }>("/api/branch"),
   getAvailability: (q: {
     date: string;
@@ -398,9 +466,54 @@ export const api = {
         slug: string;
         nickname: string | null;
         commissionPercent: number;
+        phone: string | null;
         active: boolean;
       }>;
     }>("/api/admin/barbers", { auth: true }),
+  createBarber: (input: { name: string; nickname?: string; phone?: string }) =>
+    request<{
+      ok: true;
+      data: { id: string; name: string; slug: string; nickname: string | null; phone: string | null };
+    }>("/api/admin/barbers", {
+      method: "POST",
+      body: JSON.stringify(input),
+      auth: true,
+    }),
+  listBlocked: (date: string) =>
+    request<{
+      ok: true;
+      data: Array<{
+        id: string;
+        date: string;
+        startMin: number;
+        endMin: number;
+        barberId: string | null;
+        note: string | null;
+        barber: { id: string; name: string } | null;
+      }>;
+    }>(`/api/admin/blocked?date=${encodeURIComponent(date)}`, { auth: true }),
+  createBlocked: (input: {
+    date: string;
+    startMin: number;
+    endMin: number;
+    barberId?: string | null;
+  }) =>
+    request<{ ok: true; data: { id: string } }>("/api/admin/blocked", {
+      method: "POST",
+      body: JSON.stringify(input),
+      auth: true,
+    }),
+  deleteBlocked: (id: string) =>
+    request<{ ok: true }>(`/api/admin/blocked/${id}`, { method: "DELETE", auth: true }),
+  updateBarberPhone: (id: string, phone: string) =>
+    request<{ ok: true; data: { id: string; phone: string | null } }>(
+      `/api/admin/barbers/${id}/phone`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ phone }),
+        auth: true,
+      },
+    ),
   updateBarberCommission: (id: string, commissionPercent: number) =>
     request<{ ok: true; data: { id: string; commissionPercent: number } }>(
       `/api/admin/barbers/${id}/commission`,

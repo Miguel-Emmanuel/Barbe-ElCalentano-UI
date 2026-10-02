@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BrandTitle } from "@/components/BrandTitle";
 import { MotionButton } from "@/components/motion/MotionButton";
 import { useIsMobile } from "@/lib/motion";
 
@@ -70,7 +70,13 @@ export function NewsModal() {
               <p id="news-title" className="text-[11px] uppercase tracking-[0.2em] text-gold">
                 Novedad
               </p>
-              <BrandTitle className="text-xl text-bone sm:text-2xl">El Calentano</BrandTitle>
+              <Image
+                src="/brand/logo-new.png"
+                alt="Barber Shop El Calentano"
+                width={160}
+                height={64}
+                className="h-12 w-auto object-contain"
+              />
               <p className="text-sm leading-relaxed text-bone/75">
                 Reserva en 4 pasos: servicio, barbero, horario y tus datos. Pagas en el local (MXN).
               </p>

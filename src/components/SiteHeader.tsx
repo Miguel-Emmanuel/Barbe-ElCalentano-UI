@@ -1,16 +1,19 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BrandTitle } from "@/components/BrandTitle";
 import { easeOut, useIsMobile } from "@/lib/motion";
 import { requestFreshBooking } from "@/lib/bookingReset";
 
 const LINKS = [
   { href: "#reservar", label: "Reservar" },
   { href: "#servicios", label: "Servicios" },
+  { href: "#productos", label: "Productos" },
   { href: "#galeria", label: "Galería" },
+  { href: "#origen", label: "Origen" },
   { href: "#ubicacion", label: "Ubicación" },
 ];
 
@@ -20,6 +23,8 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const lastY = useRef(0);
   const mobile = useIsMobile();
+  const path = usePathname();
+  const homeHref = (hash: string) => (path === "/" ? hash : `/${hash}`);
 
   useEffect(() => {
     const onScroll = () => {
@@ -56,7 +61,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 safe-px py-2.5 sm:py-3">
         <Link
           href="/"
-          className="min-w-0 shrink"
+          className="shrink-0"
           onClick={(e) => {
             setOpen(false);
             if (window.location.pathname === "/") {
@@ -65,14 +70,19 @@ export function SiteHeader() {
             }
           }}
         >
-          <BrandTitle className="truncate text-[0.95rem] text-bone sm:text-lg">
-            El Calentano
-          </BrandTitle>
+          <Image
+            src="/brand/logo-new.png"
+            alt="Barber Shop El Calentano"
+            width={160}
+            height={64}
+            className="h-12 w-[9.5rem] shrink-0 object-contain sm:h-[4.25rem] sm:w-[11.5rem]"
+            priority
+          />
         </Link>
 
         <div className="flex items-center gap-2">
           <a
-            href="#reservar"
+            href={homeHref("#reservar")}
             className="btn-gold !min-h-10 !rounded-xl !px-3 !text-xs md:hidden"
             onClick={() => {
               setOpen(false);
@@ -86,7 +96,7 @@ export function SiteHeader() {
             {LINKS.map((l) => (
               <a
                 key={l.href}
-                href={l.href}
+                href={homeHref(l.href)}
                 className="group relative py-1 transition hover:text-gold"
                 onClick={() => {
                   if (l.href === "#reservar") requestFreshBooking("reservar");
@@ -96,6 +106,14 @@ export function SiteHeader() {
                 <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-bone transition group-hover:scale-x-100" />
               </a>
             ))}
+            <Link
+              href="/cita"
+              className={`rounded-full px-3 py-1 transition ${
+                path.startsWith("/cita") ? "bg-bone font-semibold text-ink" : "text-bone/85 hover:text-gold"
+              }`}
+            >
+              Ya tengo cita
+            </Link>
             <Link href="/admin" className="text-bone/60 transition hover:text-gold">
               Staff
             </Link>
@@ -137,7 +155,7 @@ export function SiteHeader() {
               {LINKS.map((l, i) => (
                 <motion.a
                   key={l.href}
-                  href={l.href}
+                  href={homeHref(l.href)}
                   onClick={() => {
                     setOpen(false);
                     if (l.href === "#reservar") requestFreshBooking("reservar");
@@ -150,6 +168,15 @@ export function SiteHeader() {
                   {l.label}
                 </motion.a>
               ))}
+              <Link
+                href="/cita"
+                onClick={() => setOpen(false)}
+                className={`min-h-12 rounded-xl px-3 py-3.5 ${
+                  path.startsWith("/cita") ? "bg-bone font-semibold text-ink" : "text-bone"
+                }`}
+              >
+                Ya tengo cita
+              </Link>
               <Link
                 href="/admin"
                 onClick={() => setOpen(false)}

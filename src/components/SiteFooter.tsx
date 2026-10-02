@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Reveal } from "@/components/motion/Reveal";
-import { BrandTitle } from "@/components/BrandTitle";
 import { MotionButton } from "@/components/motion/MotionButton";
 
 export function SiteFooter() {
@@ -19,36 +19,17 @@ export function SiteFooter() {
     <>
       <Reveal>
         <footer className="border-t border-brick/40 bg-ink/90 py-8 sm:py-10">
-          <div className="mx-auto flex max-w-6xl flex-col gap-5 safe-px sm:flex-row sm:items-end sm:justify-between sm:gap-6">
-            <div>
-              <BrandTitle className="text-xl text-bone sm:text-2xl">El Calentano</BrandTitle>
-              <p className="mt-2 text-sm leading-relaxed text-bone/60">
-                C. Miguel Hidalgo 4A, Metepec · Barbería artesanal mexicana
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
-              {[
-                {
-                  href: "https://www.instagram.com/barber_elcalentano",
-                  label: "Instagram",
-                },
-                {
-                  href: "https://maps.app.goo.gl/N9v43hhsgxcHeqM76",
-                  label: "Maps",
-                },
-              ].map((s) => (
-                <motion.a
-                  key={s.href}
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  whileTap={{ scale: 0.96 }}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gold/30 px-4 text-sm text-gold"
-                >
-                  {s.label}
-                </motion.a>
-              ))}
-            </div>
+          <div className="mx-auto max-w-6xl safe-px">
+            <Image
+              src="/brand/logo-new.png"
+              alt="Barber Shop El Calentano"
+              width={180}
+              height={72}
+              className="h-16 w-auto max-w-[18rem] object-contain object-left sm:h-20 sm:max-w-[22rem]"
+            />
+            <p className="mt-3 text-sm leading-relaxed text-bone/60">
+              C. Miguel Hidalgo 4A, Metepec · Barbería artesanal mexicana
+            </p>
           </div>
         </footer>
       </Reveal>

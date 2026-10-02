@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import { MotionButton } from "@/components/motion/MotionButton";
@@ -66,7 +67,13 @@ export function DetailModal({
             <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-bone/25 sm:hidden" />
             <div className="h-14 shrink-0 bg-brick-wall bg-cover bg-center sm:h-16" />
             <div className="shrink-0 space-y-1 border-b border-white/10 px-5 py-4">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-gold">El Calentano</p>
+              <Image
+                src="/brand/logo-new.png"
+                alt="Barber Shop El Calentano"
+                width={140}
+                height={56}
+                className="h-10 w-auto object-contain"
+              />
               <h2 id="detail-modal-title" className="text-xl font-semibold text-bone">
                 {title}
               </h2>
