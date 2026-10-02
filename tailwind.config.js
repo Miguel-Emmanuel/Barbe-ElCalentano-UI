@@ -13,6 +13,7 @@ module.exports = {
           deep: "#8E3A30",
         },
         bone: "#F4EFE8",
+        dorado: "#E8C872",
         brick: {
           DEFAULT: "#C45C4A",
           soft: "#A33B32",
