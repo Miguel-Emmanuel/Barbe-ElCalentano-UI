@@ -66,6 +66,15 @@ export function HeroBrand() {
         <h1 className="sr-only">Barber Shop El Calentano — Metepec</h1>
 
         <motion.p
+          className="mt-2 text-[0.8125rem] tracking-[0.14em] text-dorado sm:mt-3 sm:text-sm"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.35, ease: easeOut }}
+        >
+          De tierra Caliente, con orgullo
+        </motion.p>
+
+        <motion.p
           className="mx-auto mt-2.5 max-w-sm text-[0.9375rem] leading-snug text-balance text-bone/85 sm:mt-4 sm:max-w-md sm:text-base lg:mx-0"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
