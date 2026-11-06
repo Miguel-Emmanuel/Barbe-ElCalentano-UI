@@ -24,7 +24,7 @@ import {
 } from "@/lib/api";
 
 const STATUS_LABEL: Record<string, string> = {
-  SCHEDULED: "Programada",
+  SCHEDULED: "Agendada",
   CONFIRMED: "Confirmada",
   CHECKED_IN: "Check-in",
   COMPLETED: "Completada",
